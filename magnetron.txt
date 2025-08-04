@@ -1,0 +1,50 @@
+Da centro magnetron a battuta inserimento guida d'onda = 170mm
+
+Frequenza = 2,45 Ghz
+Lunghezza d'onda = 122,4 mm 
+
+Per ottenere la risonanza in una cavità a microonde, la distanza della parete frontale deve essere un multiplo della mezza lunghezza d'onda (λ/2).
+
+Con una frequenza di 2,45 GHz e lunghezza d'onda di 122,4 mm:
+
+λ/2 = 122,4 mm ÷ 2 = 61,2 mm
+
+Le distanze di risonanza possibili sono:
+
+1° modo (n=1): 61,2 mm
+2° modo (n=2): 122,4 mm
+3° modo (n=3): 183,6 mm
+4° modo (n=4): 244,8 mm
+5° modo (n=5): 5 × 61,2 mm = 306,0 mm 
+6° modo (n=6): 6 × 61,2 mm = 367,2 mm 
+7° modo (n=7): 7 × 61,2 mm = 428,4 mm 
+8° modo (n=8): 8 × 61,2 mm = 489,6 mm ...e così via all'infinito.
+La distanza più comune e pratica per la risonanza fondamentale è 61,2 mm dalla parete di fondo.
+
+
+Caratteristiche dei modi superiori:
+
+Distribuzione del campo elettromagnetico più complessa:
+
+Il modo fondamentale (n=1) ha un campo uniforme
+I modi superiori hanno nodi e antinodi multipli lungo la cavità
+Efficienza di accoppiamento:
+
+Il modo fondamentale ha l'accoppiamento più efficiente con la sorgente
+I modi superiori possono avere accoppiamento ridotto a seconda della posizione della sorgente
+Stabilità:
+
+I modi superiori sono più sensibili alle tolleranze meccaniche
+Più difficili da mantenere stabili in frequenza
+Qualità del riscaldamento (se per applicazioni come forni a microonde):
+
+Il modo fondamentale offre riscaldamento più uniforme
+I modi superiori creano punti caldi e freddi ("hot spots")
+In sintesi: I modi superiori non hanno necessariamente meno energia, ma sono meno pratici da utilizzare per la maggior parte delle applicazioni. Il modo fondamentale (61,2 mm) è preferito perché offre:
+
+Migliore efficienza
+Maggiore stabilità
+Distribuzione di campo più uniforme
+Facilità di controllo
+
+5° modo (n=5): 5 × 61,2 mm = 306,0 mm 6° modo (n=6): 6 × 61,2 mm = 367,2 mm 7° modo (n=7): 7 × 61,2 mm = 428,4 mm 8° modo (n=8): 8 × 61,2 mm = 489,6 mm ...e così via all'infinito.

@@ -1,0 +1,100 @@
+! Example SIF file for an Elmer simulation of a cylindrical microwave cavity
+! with a side‑coupled WR340 waveguide at 2.45 GHz.  This file assumes that
+! you have already created a mesh of the geometry (e.g. with Netgen or Gmsh)
+! and converted it to Elmer’s mesh format.  Modify the mesh name and
+! boundaries to correspond to your mesh.
+
+Check Keywords "Warn"
+
+Header
+  Mesh DB "." "cavity_mesh"
+  Include Path "./"
+  Results Directory "./results"
+End
+
+Simulation
+  Max Output Level = 2
+  Coordinate System = "Cartesian"
+  Simulation Type = Steady
+  Steady State Max Iterations = 1
+  Angular Frequency = 2*pi*2.45e9 ! 2.45 GHz
+  Post File = "cavity_solution.vtu"
+End
+
+Constants
+  Permittivity of Vacuum = 8.854187817e-12
+  Permeability of Vacuum = 1.2566370614e-6
+End
+
+! Single body for the cavity volume (air)
+Body 1
+  Equation = 1
+  Material = 1
+End
+
+Material 1
+  Name = "Air"
+  Relative Permittivity = 1.0
+  Relative Permeability = 1.0
+End
+
+! Equation definition activates the VectorHelmholtz solver
+Equation 1
+  Name = "VectorHelmholtzEquation"
+  Active Solvers(1) = 1
+End
+
+Solver 1
+  Equation = "VectorHelmholtz"
+  Procedure = "VectorHelmholtz" "VectorHelmholtzSolver"
+  Calculate Electric Field = Logical True
+  Calculate Magnetic Field = Logical True
+  Linear System Solver = "Iterative"
+  Linear System Iterative Method = IDRS
+  Linear System Max Iterations = 4000
+  Linear System Convergence Tolerance = 1.0e-8
+  Linear System Preconditioning = "vanka"
+  Steady State Convergence Tolerance = 1.0e-7
+End
+
+! Perfect electric conductor walls (stainless steel is highly conductive)
+! Boundaries representing the cavity walls and outer waveguide surfaces
+Boundary Condition 1
+  Name = "MetalWalls"
+  Target Boundaries = 1 2 3 4 5 ! adjust IDs to your mesh
+  Electric Field 1 = Real 0
+  Electric Field 2 = Real 0
+  Electric Field 3 = Real 0
+End
+
+! Input port: impose TE10 mode on the WR340 input plane.  The WR340 inner
+! dimensions are 86.36 mm × 43.18 mm.  The tangential electric field
+! distribution of the TE10 mode is proportional to cos(pi*x/a).  The
+! following MATC expression excites this mode; replace "port_in" with the
+! boundary number of your mesh for the input plane.
+Boundary Condition 2
+  Name = "InputPort"
+  Target Boundaries = 6 ! set to the boundary number of the waveguide input
+  Electric Field 1 = Variable Coordinate 1
+    Real MATC "cos(pi*tx(0)/0.08636)"
+  Electric Field 2 = Real 0.0
+  Electric Field 3 = Real 0.0
+End
+
+! Output port: absorbing (matched) boundary to avoid reflections from the
+! truncated end of the waveguide.  Use a complex Robin boundary with an
+! impedance equal to the wave impedance of the TE10 mode.
+Boundary Condition 3
+  Name = "AbsorbingPort"
+  Target Boundaries = 7 ! set to the boundary number at the end of the waveguide
+  Electric Robin Coefficient = Real 0.0
+  Electric Robin Coefficient im = Real 1.0
+End
+
+! Optionally, specify an initial condition to break symmetry
+Initial Condition 1
+  Name = "Init"
+  Electric Field 1 = Real 1e-6
+  Electric Field 2 = Real 1e-6
+  Electric Field 3 = Real 1e-6
+End
