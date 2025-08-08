@@ -1,0 +1,115 @@
+Header
+  CHECK KEYWORDS Warn
+  Mesh DB "." "."
+  Include Path ""
+  Results Directory ""
+End
+
+! ===== FUNDAMENTAL CONSTANTS FOR MILLIMETER UNITS =====
+Constants
+  Permittivity Of Vacuum = 8.854187817e-15  ! [F/mm] - converted from F/m
+  Permeability Of Vacuum = 1.2566370614e-3  ! [H/mm] - converted from H/m  
+End
+
+Simulation
+  Max Output Level = 5
+  Coordinate System = Cartesian
+  Simulation Type = Steady
+  Steady State Max Iterations = 1
+  Post File = case.vtu
+End
+
+! ===== WR340 WAVEGUIDE PARAMETERS IN MILLIMETERS =====
+! Standard WR340 dimensions for 2.45 GHz operation
+$ a  = 86.36       ! waveguide broad side [mm] 
+$ b  = 43.18       ! waveguide narrow side [mm]
+$ c0 = 299792458.0e3 ! speed of light [mm/s] - converted for mm mesh
+$ f  = 2.45e9      ! frequency [Hz]
+$ w  = 2*pi*f      ! angular frequency [rad/s]
+$ k0 = w/c0        ! wave number in 1/mm
+$ kc = pi/a        ! cutoff wave number for TE10 mode [1/mm]
+$ beta = sqrt(k0^2 - kc^2)  ! propagation constant [1/mm]
+
+! Stainless steel 304 properties for mm units
+$ sigma = 1.35e3   ! conductivity [S/mm] - converted from 1.35e6 S/m
+
+Material 1
+  Relative Permittivity = 1.0
+  Relative Permeability = 1.0
+  Electric Conductivity = 0.0
+End
+
+Body 1
+  Target Bodies(1) = 1
+  Name = "Air"
+  Equation = 1
+  Material = 1
+  Body Force = 1
+End
+
+Body Force 1
+  Name = "CurrentSource"
+  Current Density 1 = Real 0.0
+  Current Density 2 = Real 0.001   ! [A/mm²] - realistic value for microwave excitation
+  Current Density 3 = Real 0.0
+End
+
+Equation 1
+  Name = "EM"
+  Active Solvers(2) = 1 2
+  Angular Frequency = Real $ w
+End
+
+Solver 1
+  Equation = "VectorHelmholtz"
+  Procedure = "VectorHelmholtz" "VectorHelmholtzSolver"
+  Variable = E[E re:1 E im:1]
+  Quadratic Approximation = Logical True
+  Use Piola Transform = Logical True
+
+  Linear System Solver = "Iterative"
+  Linear System Iterative Method = "BiCGStabL"
+  BiCGstabl polynomial degree = Integer 2
+  Linear System Preconditioning = ILU0
+  Linear System Max Iterations = 2000
+  Linear System Convergence Tolerance = 1.0e-10
+End
+
+Solver 2
+  Equation = "EM Post"
+  Procedure = "VectorHelmholtz" "VectorHelmholtzCalcFields"
+  Angular Frequency = Real $ w
+  Calculate Electric field = Logical True
+  Calculate Magnetic Field Strength = Logical True
+  Calculate Magnetic Flux Density = Logical True
+  Calculate Poynting Vector = Logical True
+  Calculate Energy Functional = Logical True
+  Exec Solver = After Simulation
+  Linear System Solver = "Iterative"
+  Linear System Iterative Method = "CG"
+  Linear System Max Iterations = 5000
+  Linear System Convergence Tolerance = 1.0e-6
+End
+
+! ===== BOUNDARY CONDITIONS =====
+
+! Waveguide input port - TE10 mode excitation
+Boundary Condition 1
+  Name = "Inport"
+  Target Boundaries(1) = 8
+  Electric Robin Coefficient im = Real $ beta
+
+  ! TE10 mode profile: Ey ~ sin(pi*x/a) where x is across the broad dimension
+  ! Assuming coordinate system: X across a=86.36mm, Y along cavity length, Z across b=43.18mm
+  Magnetic Boundary Load 2 = Variable Coordinate 1
+    Real MATC "-2*beta*sin(pi*(tx + a/2)/a)"
+End
+
+! Conducting walls - stainless steel with Good Conductor boundary condition
+Boundary Condition 2
+  Name = "Walls"
+  Target Boundaries(7) = 1 2 3 4 5 6 7
+  Good Conductor BC = Logical True
+  Layer Electric Conductivity = Real $ sigma   ! 1.35e3 S/mm for stainless steel 304
+  Layer Relative Reluctivity  = Real 1.0
+End
